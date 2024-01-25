@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Dice Game</title>
+</head>
+<body>
+<body style="background-color:pink; font-family: castellar;">
+<center>
+<p1 style="color: red; font-size: 5rem; text-align: center; font-family: castellar;">THE DICE GAME</p1>
+<br>
+<p2 style="color: red; font-size: 1.5rem; font-family: castellar;">WARNING! Can become extremely addicting...</p2>
+</center>
+
+<br>
+
+<p2 style="color: red; font-size: 1rem; font-family: castellar;">Rules of the game: </p2>
+<p>1. Each player will roll 5 dice.</p>
+<p>2. If there is a pair present, the player will roll the remaining dice again.</p>
+<p>3. Otherwise, the players turn ends. </p>
+<p>4. The player with the highest score after 10 rounds wins the game!</p>
+
+<br>
+
+<p2 style="color: red; font-size: 1.5rem; font-family: castellar;">Scoring: </p2>
+<p>0 points : Two-of-a-kind or less</p>
+<p>3 points : Three-of-a-kind</p>
+<p>4 points : Four-of-a-kind</p>
+<p>5 points : Five-of-a-kind</p>
+
+<br>
+
+	<p>Round: <span id="round">1</span></p>
+	<p>Player 1 Score: <span id="score1">0</span></p>
+	<div id="dice1"></div>
+	<p>Player 2 Score: <span id="score2">0</span></p>
+	<div id="dice2"></div>
+	<button id="rollButton" onclick="playRound()">Roll Dice</button>
+
+ <script>
+		var scores = [0, 0];
+		var round = 1;
+		var player = 0;
+
+		function playRound() {
+			var dice = rollDice();
+			displayRoll(dice);
+			var points = calculatePoints(dice);
+			scores[player] += points;
+			document.getElementById("score" + (player+1)).innerHTML = scores[player];
+			round++;
+			document.getElementById("round").innerHTML = round;
+			if (round > 10) {
+				endGame();
+			} else if (points == 0) {
+				player = (player + 1) % 2;
+				alert("No points! Switch to Player " + (player+1));
+			} else {
+				alert("You scored " + points + " points! Roll again Player " + (player+1));
+			}
+		}
+
+		function rollDice() {
+			var dice = [];
+			for (var i = 0; i < 5; i++) {
+				dice.push(Math.floor(Math.random() * 6) + 1);
+			}
+			return dice;
+		}
+
+		function displayRoll(dice) {
+			var imgTag = "";
+			for (var i = 0; i < dice.length; i++) {
+				imgTag += "<img src=\"dice-" + dice[i] + ".png\">";
+			}
+			if (player == 0) {
+				document.getElementById("dice1").innerHTML = imgTag;
+			} else {
+				document.getElementById("dice2").innerHTML = imgTag;
+			}
+		}
+
+		function calculatePoints(dice) {
+			var counts = {};
+			for (var i = 0; i < dice.length; i++) {
+				var num = dice[i];
+				if (counts[num]) {
+					counts[num]++;
+				} else {
+					counts[num] = 1;
+				}
+			}
+
+			for (var num in counts) {
+				if (counts[num] == 5) {
+					return 12;
+				} else if (counts[num] == 4) {
+					return 6;
+				} else if (counts[num] == 3) {
+					return 3;
+				}
+			}
+
+			var pairs = 0;
+			var pairValue = 0;
+			for (var num in counts) {
+				if (counts[num] == 2) {
+					pairs++;
+					pairValue = num;
+				}
+			}
+			if (pairs == 1) {
+				var remainingDice = [];
+				for (var i = 0; i < dice.length; i++) {
+					if (dice[i] != pairValue) {
+						remainingDice.push(dice[i]);
+					}
+				}
+				var reroll = rollDice();
+				displayRoll(reroll);
+				var newPairValue = 0;
+				for (var i = 0; i < reroll.length; i++) {
+					if (reroll[i] == pairValue) {
+						newPairValue = pairValue;
+						break;
+					}
+				}
+				if (newPairValue > 0) {
+					return 0 + calculatePoints(remainingDice.concat(newPairValue));
+							} else {
+				return 0;
+			}
+		} else {
+			return 0;
+		}
+	}
+
+	function endGame() {
+		if (scores[0] > scores[1]) {
+			alert("Player 1 wins with " + scores[0] + " points!");
+		} else if (scores[1] > scores[0]) {
+			alert("Player 2 wins with " + scores[1] + " points!");
+		} else {
+			alert("It's a tie! Both players scored " + scores[0] + " points.");
+		}
+		document.getElementById("rollButton").disabled = true;
+	}
+
+
+
+</script>
+</body>
+</html>
